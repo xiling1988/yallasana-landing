@@ -1,14 +1,10 @@
 'use client'
 import { useEffect, useMemo, useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Manrope, Cormorant_Garamond, Caveat } from 'next/font/google'
+import { Manrope, Caveat } from 'next/font/google'
 import Image from 'next/image'
 
 const manrope = Manrope({ subsets: ['latin'], weight: ['400', '600', '700'] })
-const cormorant = Cormorant_Garamond({
-  subsets: ['latin'],
-  weight: ['400', '600', '700'],
-})
 const caveat = Caveat({ subsets: ['latin'], weight: ['400', '700'] })
 
 type Profile = {
@@ -107,6 +103,7 @@ export default function YallasanaComingSoon() {
       setMessage(
         'Something went wrong. Please try again or DM us on Instagram.'
       )
+      console.log(err)
     }
   }
 
@@ -150,7 +147,7 @@ export default function YallasanaComingSoon() {
         <motion.div
           key={i}
           className={`pointer-events-none absolute ${b.cls} rounded-full opacity-30 blur-3xl mix-blend-multiply`}
-          animate={b.anim as any}
+          animate={b.anim}
           transition={{ duration: b.dur, repeat: Infinity, ease: 'easeInOut' }}
         />
       ))}
@@ -506,132 +503,5 @@ function FAQ({ q, a }: { q: string; a: string }) {
       </summary>
       <p className='mt-2 text-sm text-neutral-600'>{a}</p>
     </details>
-  )
-}
-
-type LogoMarkProps = {
-  size?: number | string // width/height, e.g. 28, "40", "2rem"
-  className?: string // Tailwind classes; color via text-*
-  strokeWidth?: number // inner stroke thickness
-  showHalo?: boolean // white outer stroke (like your PNG)
-  haloWidth?: number // thickness of the halo
-}
-
-function LogoMark({
-  size = 96,
-  className = '',
-  strokeWidth = 8,
-  showHalo = true,
-  haloWidth = 14,
-}: LogoMarkProps) {
-  // Single path set for the whole figure (pin head, torso, arms, lotus legs)
-  // Tuned to look like your reference with round caps/joins.
-  const dPin =
-    // Location pin (teardrop) + inner hole
-    'M128 28c-26.5 0-48 21.5-48 48 0 33 48 84 48 84s48-51 48-84c0-26.5-21.5-48-48-48Z'
-  const dPinHole = 'M128 60a16 16 0 1 1 0 32a16 16 0 0 1 0-32Z'
-
-  // Arms resting on knees (sweeping from center outwards)
-  const dArms =
-    'M88 140c12-12 25-18 40-18s28 6 40 18' + // inner arc
-    'M92 156c-9 0-17-1-24-3M188 153c-7 2-15 3-24 3' // short taps at wrists
-
-  // Torso (small notch under pin)
-  const dTorso = 'M112 136c5-6 10-9 16-9s11 3 16 9'
-
-  // Lotus legs (clear cross-leg)
-  const dLegs =
-    'M60 180c14-20 38-34 68-34c6 0 12 .6 18 1.8' + // left sweep
-    'c-18 5-33 15-44 28' +
-    'c-14 2-28 3-42 4' +
-    'M196 180c-14-20-38-34-68-34c-6 0-12 .6-18 1.8' + // right sweep
-    'c18 5 33 15 44 28' +
-    'c14 2 28 3 42 4' +
-    // central crossover
-    'M96 176c16 8 28 10 32 10s16-2 32-10'
-
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox='0 0 256 256'
-      fill='none'
-      xmlns='http://www.w3.org/2000/svg'
-      className={className}
-      aria-label='Yallasana logo: location pin in lotus pose'
-    >
-      {/* Optional white halo to match your PNG’s light outline */}
-      {showHalo && (
-        <>
-          <path
-            d={dPin}
-            stroke='white'
-            strokeWidth={haloWidth}
-            strokeLinecap='round'
-            strokeLinejoin='round'
-          />
-          <path
-            d={dArms}
-            stroke='white'
-            strokeWidth={haloWidth}
-            strokeLinecap='round'
-            strokeLinejoin='round'
-          />
-          <path
-            d={dTorso}
-            stroke='white'
-            strokeWidth={haloWidth}
-            strokeLinecap='round'
-            strokeLinejoin='round'
-          />
-          <path
-            d={dLegs}
-            stroke='white'
-            strokeWidth={haloWidth}
-            strokeLinecap='round'
-            strokeLinejoin='round'
-          />
-          {/* render the pin hole as a halo ring */}
-          <path d={dPinHole} fill='white' />
-        </>
-      )}
-
-      {/* Main icon strokes (inherit currentColor) */}
-      <path
-        d={dPin}
-        stroke='currentColor'
-        strokeWidth={strokeWidth}
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      />
-      <path
-        d={dArms}
-        stroke='currentColor'
-        strokeWidth={strokeWidth}
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      />
-      <path
-        d={dTorso}
-        stroke='currentColor'
-        strokeWidth={strokeWidth}
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      />
-      <path
-        d={dLegs}
-        stroke='currentColor'
-        strokeWidth={strokeWidth}
-        strokeLinecap='round'
-        strokeLinejoin='round'
-      />
-      {/* Inner hole of the pin */}
-      <path
-        d={dPinHole}
-        fill='none'
-        stroke='currentColor'
-        strokeWidth={strokeWidth}
-      />
-    </svg>
   )
 }
