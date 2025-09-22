@@ -369,7 +369,7 @@ export default function YallasanaComingSoon() {
             {/* SOCIAL */}
             <div className='mt-6 flex items-center gap-4 text-sm text-neutral-600'>
               <a
-                href='#'
+                href='https://www.instagram.com/yallasana.app/'
                 aria-label='Instagram'
                 className='hover:text-neutral-900'
               >
@@ -377,7 +377,7 @@ export default function YallasanaComingSoon() {
               </a>
               <span className='h-1 w-1 rounded-full bg-neutral-300' />
               <a
-                href='#'
+                href='https://www.tiktok.com/@yallasana'
                 aria-label='TikTok'
                 className='hover:text-neutral-900'
               >
