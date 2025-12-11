@@ -91,19 +91,29 @@ export default function YallasanaComingSoon() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, role, source: 'landing-v1' }),
       })
-      if (!res.ok) throw new Error('Network error')
       const data = await res.json().catch(() => ({}))
+      if (!res.ok) {
+        // Show actual error message from API for better debugging
+        setStatus('error')
+        setMessage(
+          data?.message ||
+            data?.detail ||
+            'Something went wrong. Please try again or DM us on Instagram.'
+        )
+        console.error('Subscribe API error:', res.status, data)
+        return
+      }
       setStatus('success')
       setMessage(
-        data?.message || 'You’re on the list. We’ll be in touch soon! ✨'
+        data && data.message
+          ? data.message
+          : "You're on the list. We'll be in touch soon! ✨"
       )
       setEmail('')
     } catch (err) {
       setStatus('error')
-      setMessage(
-        'Something went wrong. Please try again or DM us on Instagram.'
-      )
-      console.log(err)
+      setMessage('Network error. Please check your connection and try again.')
+      console.error('Subscribe error:', err)
     }
   }
 

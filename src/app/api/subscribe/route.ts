@@ -78,9 +78,13 @@ export async function POST(req: Request) {
     const upsertUrl = `https://${dc}.api.mailchimp.com/3.0/lists/${listId}/members/${subscriberHash}`
     const upsertBody = {
       email_address: email,
-      status_if_new: 'pending', // change to "subscribed" for frictionless testing
+      status_if_new: 'subscribed', // Changed from 'pending' so contacts appear immediately
       merge_fields: { ROLE: role, SOURCE: source },
     }
+    
+    // Note: If ROLE and SOURCE merge fields don't exist in your Mailchimp audience,
+    // the API will return an error. Create these merge fields in Mailchimp:
+    // Audience → Settings → Audience fields and |MERGE| tags
 
     const upsertRes = await fetch(upsertUrl, {
       method: 'PUT',
@@ -125,7 +129,7 @@ export async function POST(req: Request) {
     }
 
     return NextResponse.json({
-      message: 'You’re on the list. Please check your email to confirm! ✨',
+      message: "You're on the list! We'll be in touch soon. ✨",
     })
   } catch (e) {
     console.error('Subscribe route error:', e)
