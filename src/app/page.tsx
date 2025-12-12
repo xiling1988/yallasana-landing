@@ -4,8 +4,16 @@ import { motion, AnimatePresence } from 'framer-motion'
 import { Manrope, Caveat } from 'next/font/google'
 import Image from 'next/image'
 
-const manrope = Manrope({ subsets: ['latin'], weight: ['400', '600', '700'] })
-const caveat = Caveat({ subsets: ['latin'], weight: ['400', '700'] })
+const manrope = Manrope({
+  subsets: ['latin'],
+  weight: ['400', '600', '700'],
+  display: 'swap',
+})
+const caveat = Caveat({
+  subsets: ['latin'],
+  weight: ['400', '700'],
+  display: 'swap',
+})
 
 type Profile = {
   name: string
@@ -79,6 +87,36 @@ export default function YallasanaComingSoon() {
     )
     return () => clearInterval(id)
   }, [paused])
+
+  // Handle anchor link clicks manually to prevent scroll shifting
+  useEffect(() => {
+    const handleAnchorClick = (e: MouseEvent) => {
+      const target = e.target as HTMLElement
+      const anchor = target.closest('a[href^="#"]') as HTMLAnchorElement
+      if (!anchor) return
+
+      const href = anchor.getAttribute('href')
+      if (!href || href === '#') return
+
+      e.preventDefault()
+      const targetId = href.slice(1)
+      const targetElement = document.getElementById(targetId)
+      if (targetElement) {
+        const headerOffset = 64 // navbar height (h-16 = 64px)
+        const elementPosition = targetElement.getBoundingClientRect().top
+        const offsetPosition =
+          elementPosition + window.pageYOffset - headerOffset
+
+        window.scrollTo({
+          top: offsetPosition,
+          behavior: 'auto',
+        })
+      }
+    }
+
+    document.addEventListener('click', handleAnchorClick)
+    return () => document.removeEventListener('click', handleAnchorClick)
+  }, [])
 
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
@@ -163,14 +201,15 @@ export default function YallasanaComingSoon() {
       ))}
 
       {/* NAV */}
-      <header className='relative mx-auto flex h-16 w-full max-w-6xl items-center justify-between px-4'>
-        <div className='flex items-center gap-3'>
+      <header className='sticky top-0 z-50 mx-auto flex h-16 w-full max-w-6xl items-center justify-between bg-transparent backdrop-blur-md px-4 pt-10 mb-3'>
+        <div className='flex items-center gap-3 bg-transparent'>
           <Image
-            src='/yallasana-icon.png' // or your path
+            src='/yallasana-icon.png'
             alt='Yallasana logo'
-            width={100}
-            height={100}
+            width={64}
+            height={64}
             className='object-contain h-16 w-16'
+            priority
           />
           <span className='text-xl font-semibold tracking-tight'>
             Yallasana
@@ -199,7 +238,10 @@ export default function YallasanaComingSoon() {
       </header>
 
       {/* HERO with slideshow */}
-      <main className='relative mx-auto w-full max-w-6xl px-4 pb-24 pt-6 md:pt-10'>
+      <main
+        className='relative mx-auto w-full max-w-6xl px-4 pb-24 pt-6 md:pt-16'
+        style={{ willChange: 'auto' }}
+      >
         <div className='grid items-center gap-10 md:grid-cols-2'>
           {/* Left: Slideshow */}
           <div
@@ -207,35 +249,28 @@ export default function YallasanaComingSoon() {
             onMouseEnter={() => setPaused(true)}
             onMouseLeave={() => setPaused(false)}
           >
-            {/* Backdrop image with fade/scale */}
-            <AnimatePresence mode='wait'>
-              <motion.div
-                key={current.backdrop}
-                initial={{ opacity: 0, scale: 1.04 }}
-                animate={{ opacity: 1, scale: 1 }}
-                exit={{ opacity: 0, scale: 0.98 }}
-                transition={{ duration: 0.6, ease: 'easeOut' }}
-                className='absolute inset-0'
-              >
-                <div
-                  className='absolute inset-0 bg-center bg-cover'
-                  style={{ backgroundImage: `url(${current.backdrop})` }}
-                />
-                <div className='absolute inset-0 bg-gradient-to-t from-black/35 via-black/10 to-transparent' />
-              </motion.div>
-            </AnimatePresence>
+            {/* Backdrop image */}
+            <div className='absolute inset-0'>
+              <div
+                className='absolute inset-0 bg-center bg-cover'
+                style={{
+                  backgroundImage: `url(${current.backdrop})`,
+                  willChange: 'auto',
+                }}
+              />
+              <div className='absolute inset-0 bg-gradient-to-t from-black/35 via-black/10 to-transparent' />
+            </div>
 
             {/* Foreground content */}
             <div className='relative z-10 flex h-full flex-col justify-end p-5'>
               <div className='flex items-end gap-3'>
-                <motion.img
-                  key={current.portrait}
+                <img
                   src={current.portrait}
                   alt={`${current.name} portrait`}
                   className='h-16 w-16 rounded-2xl object-cover ring-2 ring-white/80 shadow'
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.4 }}
+                  width={64}
+                  height={64}
+                  loading='lazy'
                 />
                 <div className='rounded-2xl bg-white/90 px-4 py-3 shadow backdrop-blur'>
                   <p className='text-sm font-semibold leading-tight text-neutral-900'>
@@ -289,11 +324,7 @@ export default function YallasanaComingSoon() {
           </div>
 
           {/* Right: Copy + form */}
-          <motion.div
-            initial={{ opacity: 0, y: 12 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
-          >
+          <div>
             <div className='inline-flex items-center gap-2 rounded-full border border-sky-200 bg-white/80 px-3 py-1 text-xs text-sky-700'>
               <span className='h-2 w-2 animate-pulse rounded-full bg-sky-500' />
               Coming soon across the UAE
@@ -394,7 +425,7 @@ export default function YallasanaComingSoon() {
                 TikTok
               </a>
             </div>
-          </motion.div>
+          </div>
         </div>
 
         {/* SPLIT VALUE PROPS */}
@@ -522,16 +553,14 @@ function ValueBlock({
     <motion.div
       id={id}
       className='rounded-3xl border border-neutral-200 bg-white p-6 shadow-sm'
-      animate={{ y: [0, -4, 0] }}
-      transition={{ duration: 8, repeat: Infinity, ease: 'easeInOut' }}
     >
-      <p className='text-xs font-medium uppercase tracking-wider text-sky-700'>
+      <p className='text-md font-medium uppercase tracking-wider text-sky-700'>
         {eyebrow}
       </p>
-      <h3 className={`${caveat.className} mt-1 text-xl font-semibold`}>
+      <h3 className={`${caveat.className} mt-1 text-2xl font-semibold`}>
         {title}
       </h3>
-      <ul className='mt-3 space-y-2 text-sm text-neutral-700'>
+      <ul className='mt-3 space-y-2 text-md text-neutral-700'>
         {points.map((p) => (
           <li key={p} className='flex items-start gap-2'>
             <span className='mt-1 inline-block h-1.5 w-1.5 flex-shrink-0 rounded-full bg-sky-700' />
